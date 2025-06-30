@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.0.0",
+    "express": "^5.1.0",
+    "mongoose": "^8.16.1",
+    "mongoose-sequence": "^5.3.1",
+    "multer": "^2.0.1",
+    "nodemailer": "^7.0.3",
+    "xlsx": "^0.18.5"
+  }
+}
