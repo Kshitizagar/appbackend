@@ -16,7 +16,7 @@ app.use(express.json());
 app.use(bodyParser.json());
 
 // MongoDB Connection
-mongoose.connect('mongodb://localhost:27017/productdb', {
+mongoose.connect('mongodb://mongo:MhoksKvxCNfbzFFKhLqMFnIcHCYTwsCy@switchback.proxy.rlwy.net:37637', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 }).then(() => console.log('✅ MongoDB connected'))
