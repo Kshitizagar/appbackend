@@ -7,8 +7,9 @@ const multer = require('multer');
 const xlsx = require('xlsx');
 const bodyParser = require('body-parser');
 const path = require('path');
-const { v4: uuidv4 } = require("uuid");
+require("uuid");
 require("dotenv").config();
+const useragent = require('express-useragent');
 
 const app = express();
 app.set('trust proxy', true);
@@ -18,6 +19,8 @@ const PORT = 5001;
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
+app.use(useragent.express());
+
 
 // MongoDB Connection
 mongoose.connect('mongodb://mongo:MhoksKvxCNfbzFFKhLqMFnIcHCYTwsCy@switchback.proxy.rlwy.net:37637', {
@@ -26,6 +29,13 @@ mongoose.connect('mongodb://mongo:MhoksKvxCNfbzFFKhLqMFnIcHCYTwsCy@switchback.pr
 }).then(() => console.log('✅ MongoDB connected'))
   .catch(err => console.error('❌ MongoDB connection error:', err));
 
+// mongoose.connect('mongodb://127.0.0.1:27017/visitorTest', {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true,
+// }).then(() => console.log('✅ Local MongoDB connected'))
+//   .catch(err => console.error('❌ MongoDB connection error:', err));
+
+  
 // Product Schema & Model
 const Product = mongoose.model('Product', new mongoose.Schema({
   name: String,
@@ -41,11 +51,22 @@ const visitSchema = new mongoose.Schema({
   count: { type: Number, default: 0 },
 });
 
+// const visitorSchema = new mongoose.Schema({
+//   visitorId: { type: String, unique: true },
+//   ipAddress: String, 
+//   timestamp: { type: Date, default: Date.now },
+// });
+
 const visitorSchema = new mongoose.Schema({
   visitorId: { type: String, unique: true },
-  ipAddress: String, 
+  ipAddress: String,
+  browser: String,
+  os: String,
+  device: String,
+  platform: String,
   timestamp: { type: Date, default: Date.now },
 });
+
 
 const Visit = mongoose.model("Visit", visitSchema);
 const Visitor = mongoose.model("Visitor", visitorSchema);
@@ -191,19 +212,80 @@ app.post("/api/visit", async (req, res) => {
 });
 
 // 🟢 Count unique visitors
+// app.post("/api/uniqueVisit", async (req, res) => {
+//   const { visitorId } = req.body;
+//   if (!visitorId) return res.status(400).json({ error: "Missing visitorId" });
+
+//   // ✅ Get user's IP address
+//   const ipAddress = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress;
+
+
+//   try {
+//     let existing = await Visitor.findOne({ visitorId });
+//     if (!existing) {
+//     //   await Visitor.create({ visitorId });
+//     await Visitor.create({ visitorId, ipAddress });
+//     }
+//     const uniqueCount = await Visitor.countDocuments();
+//     res.json({ totalUniqueVisitors: uniqueCount });
+//   } catch (err) {
+//     res.status(500).json({ error: "Error tracking visitor" });
+//   }
+// });
+
+// app.post("/api/uniqueVisit", async (req, res) => {
+//   const { visitorId } = req.body;
+//   if (!visitorId) return res.status(400).json({ error: "Missing visitorId" });
+
+//   const ipAddress = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress;
+
+//   const { browser, os, platform, isMobile, isDesktop } = req.useragent;
+//   const device = isMobile ? 'Mobile' : isDesktop ? 'Desktop' : 'Other';
+
+//   try {
+//     let existing = await Visitor.findOne({ visitorId });
+//     if (!existing) {
+//       await Visitor.create({
+//         visitorId,
+//         ipAddress,
+//         browser,
+//         os,
+//         device,
+//         platform
+//       });
+//     }
+//     const uniqueCount = await Visitor.countDocuments();
+//     res.json({ totalUniqueVisitors: uniqueCount });
+//   } catch (err) {
+//     res.status(500).json({ error: "Error tracking visitor" });
+//   }
+// });
+
 app.post("/api/uniqueVisit", async (req, res) => {
   const { visitorId } = req.body;
   if (!visitorId) return res.status(400).json({ error: "Missing visitorId" });
 
-  // ✅ Get user's IP address
   const ipAddress = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress;
+  const { browser, os, platform, isMobile, isDesktop } = req.useragent;
+  const device = isMobile ? 'Mobile' : isDesktop ? 'Desktop' : 'Other';
 
+  const visitorInfo = {
+    visitorId,
+    ipAddress,
+    browser,
+    os,
+    device,
+    platform,
+    timestamp: new Date().toISOString()
+  };
+
+  // 👇 Print to terminal
+  // console.log("👤 New Visitor:", visitorInfo);
 
   try {
     let existing = await Visitor.findOne({ visitorId });
     if (!existing) {
-    //   await Visitor.create({ visitorId });
-    await Visitor.create({ visitorId, ipAddress });
+      await Visitor.create(visitorInfo);
     }
     const uniqueCount = await Visitor.countDocuments();
     res.json({ totalUniqueVisitors: uniqueCount });
@@ -211,6 +293,8 @@ app.post("/api/uniqueVisit", async (req, res) => {
     res.status(500).json({ error: "Error tracking visitor" });
   }
 });
+
+
 
 app.get("/api/stats", async (req, res) => {
   const total = (await Visit.findOne())?.count || 0;
@@ -222,4 +306,3 @@ app.get("/api/stats", async (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
-
