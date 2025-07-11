@@ -23,17 +23,21 @@ app.use(useragent.express());
 
 
 // MongoDB Connection
-mongoose.connect('mongodb://mongo:MhoksKvxCNfbzFFKhLqMFnIcHCYTwsCy@switchback.proxy.rlwy.net:37637', {
+mongoose.connect('mongodb://mongo:ykXRIzfmhuHDAuCrYzesNZnKJIHhfZCV@hopper.proxy.rlwy.net:10031', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 }).then(() => console.log('✅ MongoDB connected'))
   .catch(err => console.error('❌ MongoDB connection error:', err));
 
+// mongodb://mongo:ykXRIzfmhuHDAuCrYzesNZnKJIHhfZCV@hopper.proxy.rlwy.net:10031
 // mongoose.connect('mongodb://127.0.0.1:27017/visitorTest', {
 //   useNewUrlParser: true,
 //   useUnifiedTopology: true,
 // }).then(() => console.log('✅ Local MongoDB connected'))
 //   .catch(err => console.error('❌ MongoDB connection error:', err));
+
+// mongoose.connect('mongodb://mongo:MhoksKvxCNfbzFFKhLqMFnIcHCYTwsCy@switchback.proxy.rlwy.net:37637', {
+
 
   
 // Product Schema & Model
@@ -43,7 +47,9 @@ const Product = mongoose.model('Product', new mongoose.Schema({
   description: String,
   product_link: String,
   image_link: String,
-  category: String
+  category: String,
+  form1:String,
+  form2:String
 }));
 
 
@@ -144,6 +150,8 @@ app.post('/api/sendEmailExcel', upload.single('file'), async (req, res) => {
         Category: ${p.category}<br/>
         Description: ${p.description}<br/>
         <a href="${p.product_link}">Product Link</a><br/>
+        // <a href="${p.form1}">OForm</a><br/>
+        // <a href="${p.form2}">RForm</a><br/>
         <a href="${p.image_link}">Image Link</a>
       </p><hr/>
     `).join('');
@@ -180,10 +188,12 @@ app.post('/api/sendEmail', async (req, res) => {
       Category: ${p.category}<br/>
       Description: ${p.description}<br/>
       <a href="${p.product_link}">Product Link</a><br/>
+      <a href="${p.form1}">OForm</a><br/>
+      <a href="${p.form2}">RForm Link</a><br/>
       <a href="${p.image_link}">Image Link</a>
     </p><hr/>
   `).join('');
-
+    
   const mailOptions = {
     from: 'diamondking9239@gmail.com',
     to: 'kshitizdpr@gmail.com,kshitiz.agarwal@gmail.com',
