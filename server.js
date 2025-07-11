@@ -77,6 +77,13 @@ const visitorSchema = new mongoose.Schema({
 const Visit = mongoose.model("Visit", visitSchema);
 const Visitor = mongoose.model("Visitor", visitorSchema);
 
+// adding category schema and model
+const categorySchema = new mongoose.Schema({
+  name: { type: String, required: true, unique: true }
+});
+const Category = mongoose.model('Category', categorySchema);
+
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, 'uploads/'),
   filename: (req, file, cb) => cb(null, file.originalname)
@@ -89,6 +96,36 @@ const transporter = nodemailer.createTransport({
   auth: {
     user: 'diamondking9239@gmail.com',
     pass: 'gqcfjgobsdrtqrsr' // Gmail App Password
+  }
+});
+
+app.post('/api/categories', async (req, res) => {
+  const { name } = req.body;
+
+  if (!name) {
+    return res.status(400).json({ error: 'Category name is required' });
+  }
+
+  try {
+    const category = new Category({ name });
+    await category.save();
+    res.json({ message: 'Category added successfully', category });
+  } catch (err) {
+    if (err.code === 11000) {
+      res.status(400).json({ error: 'Category already exists' });
+    } else {
+      res.status(500).json({ error: 'Failed to add category' });
+    }
+  }
+});
+
+
+app.get('/api/categories', async (req, res) => {
+  try {
+    const categories = await Category.find().sort({ name: 1 }); // sorted alphabetically
+    res.json(categories);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch categories' });
   }
 });
 
