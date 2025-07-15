@@ -349,6 +349,16 @@ app.get("/api/stats", async (req, res) => {
   res.json({ totalVisits: total, totalUniqueVisitors: unique });
 });
 
+app.get('/api/products/category/:category', async (req, res) => {
+  try {
+    const category = req.params.category;
+    const products = await Product.find({ category });
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch products by category' });
+  }
+});
+
 // 🚀 Start Server
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
