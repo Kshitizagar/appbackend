@@ -49,7 +49,9 @@ const Product = mongoose.model('Product', new mongoose.Schema({
   image_link: String,
   category: String,
   form1:String,
-  form2:String
+  form2:String,
+  status:String,
+  discountedprice: Number
 }));
 
 
