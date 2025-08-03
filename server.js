@@ -22,8 +22,8 @@ app.use(bodyParser.json());
 app.use(useragent.express());
 
 
-// MongoDB Connection
-mongoose.connect('mongodb://mongo:ykXRIzfmhuHDAuCrYzesNZnKJIHhfZCV@hopper.proxy.rlwy.net:10031', {
+// MongoDB Connection  'mongodb://mongo:ykXRIzfmhuHDAuCrYzesNZnKJIHhfZCV@hopper.proxy.rlwy.net:10031'
+mongoose.connect('mongodb+srv://radhu-king-deals:cSOrjk8nzjowzPhD@deals.jpwf71l.mongodb.net/', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 }).then(() => console.log('✅ MongoDB connected'))
