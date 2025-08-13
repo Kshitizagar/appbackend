@@ -121,6 +121,25 @@ app.post('/api/categories', async (req, res) => {
   }
 });
 
+app.delete('/api/categories', async (req, res) => {
+  const { name } = req.body;
+
+  if (!name) {
+    return res.status(400).json({ error: 'Category name is required' });
+  }
+
+  try {
+    const deletedCategory = await Category.findOneAndDelete({ name });
+
+    if (!deletedCategory) {
+      return res.status(404).json({ error: 'Category not found' });
+    }
+
+    res.json({ message: 'Category deleted successfully', deletedCategory });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete category' });
+  }
+});
 
 app.get('/api/categories', async (req, res) => {
   try {
